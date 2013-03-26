@@ -1,37 +1,74 @@
+% --------------------------------------------------------------------------
+% the SNOTEZ package
+% 
+%   Sidenotes for LaTeX2e
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://bitbucket.org/cgnieder/enotez/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2012--2013 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The snotez package consists of the files
+%  - snotez.sty, snotez_en.tex, snotez_en.pdf, README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{snotez}[2012/11/15 v0.1 sidenote support for LaTeX 2e (CN)]
+\ProvidesPackage{snotez}[2013/03/26 v0.1a sidenote support for LaTeX 2e (CN)]
 
 \RequirePackage{etoolbox,pgfopts,marginnote,perpage}
 
+% --------------------------------------------------------------------------
 \newbool{snotez@marginnote}
 \newbool{snotez@perpage}
 \newbool{snotez@footnote}
 
-\def\snotez@mark@sep{ }
-\def\snotez@mark@format#1{\@textsuperscript{\normalfont#1}}
+\def\snotez@note@mark@sep{\space}
+\def\snotez@note@mark@format#1{\@textsuperscript{\normalfont#1}}
 \def\snotez@format{\footnotesize}
+\def\snotez@text@mark@format#1{\@textsuperscript{\normalfont#1}}
 
 \pgfkeys{
   snotez/.cd,
-    marginnote/.is if = snotez@marginnote , % all sidenotes use \marginnote
-    format/.code      = \def\snotez@format{#1} ,
-    format+/.code     =
+    % all sidenotes use \marginnote:
+    marginnote/.is if       = snotez@marginnote ,
+    text-format/.code       = \def\snotez@format{#1} ,
+    text-format+/.code      =
       \expandafter\def\expandafter\snotez@format\expandafter{\snotez@format#1} ,
-    perpage/.is if    = snotez@perpage ,    % make sidenotes counted per page
-    mark-sep/.code    = \def\snotez@mark@sep{#1} ,
-    mark-format/.code = \def\snotez@mark@format##1{#1} ,
-    footnote/.is if   = snotez@footnote ,   % make all footnotes sidenotes
+    % make sidenotes counted per page:
+    perpage/.is if          = snotez@perpage ,
+    note-mark-sep/.code     = \def\snotez@note@mark@sep{#1} ,
+    note-mark-format/.code  = \def\snotez@note@mark@format##1{#1} ,
+    text-mark-format/.code  = \def\snotez@text@mark@format##1{#1} ,
+    % make all footnotes sidenotes:
+    footnote/.is if         = snotez@footnote
 }
 
 \ProcessPgfOptions*
 
 \newrobustcmd\setsidenotes[1]{\pgfqkeys{/snotez}{#1}}
 
+% --------------------------------------------------------------------------
 % syntax:
 % - \sidenote{text}
 % - \sidenote[mark]{text}
 % - \sidenote[offset][mark]{text}
-\newcommand*\sidenote{%
+\newrobustcmd*\sidenote{%
   \@ifnextchar[%
     {\snotez@sidenote@aux@i}
     {\snotez@sidenote@aux@ii{}[]}}% no option
@@ -55,12 +92,12 @@
   {\MakeSorted{sidenote}}
 }
 \def\snotez@mark#1{%
-  \ifblank{#1}
+  \ifblank{#1}% or ifstrempty?
     {\refstepcounter{sidenote}\protected@xdef\@the@snotez@mark{\thesidenote}}
     {\protected@xdef\@the@snotez@mark{#1}}%
-  \hbox{\@textsuperscript{\normalfont\@the@snotez@mark}}}
+  \hbox{\snotez@text@mark@format{\@the@snotez@mark}}}
 
-\newcommand*\sidenotemark[1][]{\snotez@mark{#1}}
+\newrobustcmd*\sidenotemark[1][]{\snotez@mark{#1}}
 
 \AtBeginDocument{
   \ifbool{snotez@marginnote}
@@ -69,18 +106,20 @@
   \let\snotez@marginnote\marginnote
 }
 
+% #1: offset
+% #2: text
 \def\snotez@text#1#2{%
   \ifblank{#1}
     {%
       \snotez@marginpar{%
-        \snotez@format\snotez@mark@format\@the@snotez@mark\snotez@mark@sep#2}%
+        \snotez@format\snotez@note@mark@format\@the@snotez@mark\snotez@note@mark@sep#2}%
     }
     {%
       \snotez@marginnote{%
-        \snotez@format\snotez@mark@format\@the@snotez@mark\snotez@mark@sep#2}[#1]%
+        \snotez@format\snotez@note@mark@format\@the@snotez@mark\snotez@note@mark@sep#2}[#1]%
     }}
 
-\newcommand*\sidenotetext{%
+\newrobustcmd*\sidenotetext{%
   \@ifnextchar[%
     {\snotez@sidenotetext@aux@i}
     {\snotez@sidenotetext@aux@ii{}[]}}% no option
@@ -98,7 +137,8 @@
   \snotez@text{#1}{#3}}
 
 \AtBeginDocument{
-  \@ifpackageloaded{fnpct}{\AdaptNoteOpt\sidenote\multsidenote}{}
+% FIXME: do not do this here! this is `fnpct's task
+%   \@ifpackageloaded{fnpct}{\AdaptNoteOpt\sidenote\multsidenote}{}
   \ifbool{snotez@footnote}
     {
       \let\footnote\sidenote
@@ -107,4 +147,11 @@
     }{}
 }
 \endinput
+% --------------------------------------------------------------------------
+% HISTORY:
+2012/11/15 v0.1  - first version
+2013/03/26 v0.1a - documentation, removed erroneous `fnpct' adaption, other
+                   minor changes
+
+% --------------------------------------------------------------------------
 % TODO

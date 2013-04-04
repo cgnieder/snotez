@@ -1,0 +1,325 @@
+% arara: pdflatex
+% arara: biber
+% arara: pdflatex
+% arara: pdflatex
+% --------------------------------------------------------------------------
+% the SNOTEZ package
+% 
+%   Sidenotes for LaTeX2e
+% 
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://bitbucket.org/cgnieder/snotez/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2012--2013 Clemens Niederberger
+% 
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+% 
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The snotez package consists of the files
+%  - snotez.sty, snotez_en.tex, snotez_en.pdf, README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+% in order to compile this documentation you need the document class
+% `cnpkgdoc' which you can get here:
+%   https://bitbucket.org/cgnieder/cnpkgdoc/
+%
+\PassOptionsToPackage{supstfm=libertinesups}{superiors}
+\documentclass[toc=index,toc=bib,mpinclude]{cnpkgdoc}
+\setlength{\marginparwidth}{2\marginparwidth}
+\docsetup{
+  pkg={[footnote,perpage]snotez},
+  subtitle=sidenote support for \LaTeXe
+}
+\addcmds{
+  RaggedRight,
+  sidenote,setsidenotes,superiors@spaced,
+  textsu
+}
+% Layout:
+\cnpkgusecolorscheme{friendly}
+\renewcommand*\othersectionlevelsformat[3]{%
+  \textcolor{main}{#3\autodot}\enskip}
+\renewcommand*\partformat{%
+  \textcolor{main}{\partname~\thepart\autodot}}
+\usepackage{fnpct}
+\AdaptNoteOpt\sidenote\multsidenote
+\pagestyle{headings}
+
+\usepackage[biblatex]{embrac}[2013/03/22]
+\ChangeEmph{[}[,.02em]{]}[.055em,-.08em]
+\ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
+
+\usepackage{libertinehologopatch}
+\usepackage{ragged2e}
+
+\normalmarginpar
+
+% Index:
+\usepackage{imakeidx}
+\usepackage{filecontents}
+\begin{filecontents*}{\jobname.ist}
+ heading_prefix "{\\bfseries "
+ heading_suffix "\\hfil}\\nopagebreak\n"
+ headings_flag  1
+ delim_0 "\\dotfill\\hyperpage{"
+ delim_1 "\\dotfill\\hyperpage{"
+ delim_2 "\\dotfill\\hyperpage{"
+ delim_r "}\\textendash\\hyperpage{"
+ delim_t "}"
+ suffix_2p "\\nohyperpage{\\,f.}"
+ suffix_3p "\\nohyperpage{\\,ff.}"
+\end{filecontents*}
+\indexsetup{othercode=\footnotesize}
+\makeindex[options={-s \jobname.ist},intoc,columns=3]
+
+\usepackage[backend=biber,style=alphabetic]{biblatex}
+\addbibresource{\jobname.bib}
+\begin{filecontents}{\jobname.bib}
+@misc{pkg:chngcntr,
+  title   = {\paket*{chngcntr}},
+  author  = {Peter Wilson and Will Robertson},
+  date    = {2009-09-02},
+  version = {1.0a},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/chngcntr}
+}
+@misc{pkg:etoolbox,
+  title   = {\paket*{etoolbox}},
+  author  = {Philipp Lehman},
+  date    = {2011-01-21},
+  version = {2.1},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/etoolbox}
+}
+@misc{pkg:marginnote,
+  title   = {\paket*{marginnote}},
+  author  = {Karkus Kohm},
+  date    = {2012-03-29},
+  version = {1.1i},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/marginnote}
+}
+@misc{cls:memoir,
+  title   = {\klasse{memoir}},
+  author  = {Lars Madsen and Peter Wilson},
+  date    = {2011-03-06},
+  version = {3.6j patch 6.0g},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/memoir}
+}
+@misc{pkg:perpage,
+  title   = {\paket*{perpage}},
+  author  = {David Kastrup},
+  date    = {2006-07-15},
+  version = {1.12},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/perpage}
+}
+@misc{pkg:pgfopts,
+  title   = {\paket*{pgfopts}},
+  author  = {Joseph Wright},
+  date    = {2011-06-02},
+  version = {2.1},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/pgfopts}
+}
+@misc{pkg:ragged2e,
+  title   = {\paket*{ragged2e}},
+  author  = {Martin Schröder},
+  date    = {2009-05-21},
+  version = {2.1},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/ragged2e}
+}
+@misc{pkg:sidenotes,
+  title   = {\paket*{sidenotes}},
+  author  = {Andy Thomas and Oliver Schebaum},
+  date    = {2012-11-09},
+  version = {0.92},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/sidenotes}
+}
+@misc{pkg:superiors,
+  title   = {\paket*{superiors}},
+  author  = {Michael Sharpe},
+  date    = {2012-08-13},
+  version = {1.02},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/superiors}
+}
+@misc{cls:tufte,
+  title   = {\klasse{tufte-latex}},
+  author  = {Kevin Godby and Bil Kleb and Bill Wood},
+  date    = {2009-12-11},
+  version = {3.5.0},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/sidenotes}
+}
+\end{filecontents}
+
+\newcommand*\Default[1]{%
+  \hfill\llap{%
+    \ifblank{#1}
+      {(initially~empty)}
+      {Default:~\code{#1}}%
+    }\newline
+}
+
+\makeatletter
+\newcommand*\defaultsidenotes{%
+  \setsidenotes{
+    note-mark-format = \@textsuperscript{\normalfont##1},
+    text-format      = \footnotesize
+  }}
+\setsidenotes{
+  note-mark-format=#1.,
+  text-mark-format=\textsu{\hspace*{\superiors@spaced}#1},
+  text-format+=\RaggedRight
+}
+\makeatother
+
+\begin{document}
+
+\section{License and Requirements}\label{sec:license}\secidx{License}
+\snotez is placed under the terms of the \LaTeX{} Project Public License,
+version 1.3 or later (\url{http://www.latex-project.org/lppl.txt}). It has the
+status ``maintained.''
+
+\snotez needs and loads the packages
+\paket*{etoolbox}\sidenote[-2\baselineskip][]{\textcite{pkg:etoolbox}},
+\paket*{pgfopts}\sidenote[-\baselineskip][]{\textcite{pkg:pgfopts}},
+\paket*{marginnote}\sidenote{\textcite{pkg:marginnote}} and
+\paket*{perpage}\sidenote{\textcite{pkg:perpage}}.
+\secidx*{License}
+
+\section{Motivation}
+This has just been an exercise on a lazy
+afternoon\sidenote[-2\baselineskip][]{\url{http://www.youtube.com/watch?v=PPRiaYH1iTk}}.
+Since there already is Andy Thomas' \paket*{sidenotes}
+package\sidenote[-\baselineskip][]{\textcite{pkg:sidenotes}} there is probably
+no real need for \snotez. Moreover, the tufte classes\sidenote{\textcite{cls:tufte}}
+as well as \klasse{memoir}\sidenote{\textcite{cls:memoir}} also provide corresponding
+mechansims. Anyways, here it is and it seems to be working as intended so I
+don't see a reason why it shouldn't be available for use.
+
+\section{Introduction}\secidx{Introduction}
+The \snotez Package introduces a \cmd{sidenote} command%
+\begingroup\defaultsidenotes
+\sidenote{This is an example demonstrating the default appearance.}
+\endgroup
+that typesets sidenotes the
+same way \cmd{footnote} typesets footnotes. It provides some options that allow
+formatting the appearance of the sidenotes\sidenote[\baselineskip][]{In all
+sidenotes in this document the mark is typeset on the baseline and the text is
+set ragged right.}. As a default sidenotes are typeset in a \cmd{marginpar} but
+there are possibilities using Markus Kohm's \paket{marginnote} package as well.
+
+As with footnotes it is possible to set mark and text separately using the
+equivalent commands \cmd{sidenotemark} and \cmd{sidenotetext}, respectively.
+Instead of code examples this documentation will use the \cmd{sidenote} macro
+itself extensively. It is assumend you know how to use \cmd{footnote} and are
+able to transfer your knowledge.
+\secidx*{Introduction}
+
+\section{Usage}\secidx{Usage}
+The basic usage is the very same as with \LaTeX's \cmd{footnote}, \cmd{footnotemark}
+and \cmd{footnotetext}. Unsurprisingly the presented commands are these:
+\begin{beschreibung}
+ \Befehl{sidenote}\oa{<mark>}\ma{<text>}\newline
+   The basic command. The sytnax is the very same as for \cmd{footnote}.
+ \Befehl{sidenote}\oa{<offset>}\oa{<mark>}\ma{<text>}\newline
+   Actually I lied: \cmd{sidenote} has a second option that smuggles itself
+   before the \oa{<mark>} option if you use it: an argument for a vertical offset
+   that takes a length. An empty second option assumes you want the automatic
+   mark. If you use this argument the note is set with the \cmd{marginnote}
+   command\sidenote[-\baselineskip][]{From the \paket{marginnote} package}.
+   Please see its documentation\sidenote{For example with \texttt{texdoc
+   marginnote} on your command line.}~\cite{pkg:marginnote} for the \oa{<offset>}
+   argument. \snotez only passes the value on. Only this much: a positive value
+   shifts the note \emph{down}.
+ \Befehl{sidenotemark}\oa{<text>}\newline
+   This command has the same purpose as \cmd{footnotemark} but for sidenotes.
+ \Befehl{sidenotetext}\oa{<mark>}\ma{<text>}\newline
+   The same as \cmd{footnotetext} but for sidenotes. Beware where you place it:
+   it calls \cmd{marginpar} or \cmd{marginnote} and thus determines where the
+   actual note is placed.
+ \Befehl{sidenotetext}\oa{<offset>}\oa{<mark>}\ma{<text>}\newline
+   I lied again: \cmd{sidenotetext} also has the second optional argument
+   \oa{<offset>} that again smuggles itself before the \oa{<mark>} option if you
+   use it. For details see the second description of the \cmd{sidenote} command.
+\end{beschreibung}
+I am not really sure the order of optional arguments makes much sense. If you
+have a better idea please let me know\sidenote[-\baselineskip][]{The fastest way:
+email me at\\\href{mailto:contact@mychemistry.eu}{contact@mychemistry.eu}.}.
+\secidx*{Usage}
+
+\section{Options}\secidx{Options}
+Although all options can be used as package option you can also set all options
+(locally) with a setup command:
+\begin{beschreibung}
+ \Befehl{setsidenotes}{<options>}
+\end{beschreibung}
+Available options are these:
+\begin{beschreibung}
+ \Option{marginnote}{\default{true}|false}\Default{false}
+   Use \paket{marginnote}'s \cmd{marginnote}~\cite{pkg:marginnote} for all
+   \cmd{sidenote}s. In the default setting \cmd{sidenote} uses \cmd{marginpar}s
+   to set the sidenote unless you use the \oa{<offset>} argument. If you use
+   this option \emph{all} sidenotes are set with \cmd{marginnote}. \emph{This
+   option can only be used in the preamble}.
+ \Option{text-format}{<code>}\Default{\cmd*{footnotesize}}
+   The format of the sidenote text.
+ \Option{text-format+}{<code>}\Default{}
+   Code to be appended to the format set with \key{text-format}\sidenote{This
+   document, for example, appends \paket*{ragged2e}'s \cmd*{RaggedRight}~\cite{pkg:ragged2e}
+   to the sidenote's format.}.
+ \Option{perpage}{\default{true}|false}\Default{false}
+   Make sidenotes counter per page. \emph{This option can only be set in the
+   preamble}. It uses package \paket{perpage}'s \cmd*{MakeSortedPerPage} macro
+   for the task. This documentation is an example for the use of the option.
+   In the default setting sidenotes are counted per chapter. If you want sidenotes
+   counted document-wise together with a class that defines a counter \code{chapter}
+   then use for example the package \paket*{chngcntr}~\cite{pkg:chngcntr} and issue
+   \cmd*{counterwithout}{sidenote}\ma{chapter} after loading \snotez.
+ \Option{note-mark-sep}{<code>}\Default{\cmd*{space}}
+   The separator between sidenote mark and sidenote text in the sidenote.
+ \Option{note-mark-format}{<code>}\Default{\cmd*{@textsuperscript}\{\cmd*{normalfont}\#1\}}
+   The format of the sidenote mark in the sidenote. Please refer to the actual
+   mark with \code{\#1}.
+ \Option{text-mark-format}{<code>}\Default{\cmd*{@textsuperscript}\{\cmd*{normalfont}\#1\}}
+   The format of the sidenote mark in the text\sidenote[-2\baselineskip][]{This
+   document uses Michael Sharpe's \paket*{superiors} package~\cite{pkg:superiors}
+   and redefines the mark formats to use its \cmd*{textsu} command.}. Please refer
+   to the actual mark with \code{\#1}.
+ \Option{footnote}{\default{true}|false}\Default{false}
+   Let\sidenote{In the sense of \cmd*{let}} \cmd{footnote} to be \cmd{sidenote},
+   \cmd{footnotemark} to be \cmd{sidenotemark} and \cmd{footnotetext} to be
+   \cmd{sidenotetext}. \emph{This option can only be used in the preamble}.
+\end{beschreibung}
+
+As a short example this is how the sidenotes for this document are formatted:
+\begin{beispiel}[code only]
+\setsidenotes{
+  note-mark-format=#1.,
+  text-mark-format=\textsu{\hspace*{\superiors@spaced}#1},
+  text-format+=\RaggedRight
+}
+\end{beispiel}
+\secidx*{Options}
+
+\setlength{\linewidth}{\dimexpr\textwidth+.5\marginparwidth}
+\printbibliography
+
+\section{Implementation}
+In the following code the lines 1--30 have been omitted. They only repeat the
+license statement which has already been mentioned in section~\ref{sec:license}.
+
+\implementation[linerange={31-179},firstnumber=31]
+
+\normalsize
+\printindex
+
+\end{document}

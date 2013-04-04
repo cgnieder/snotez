@@ -29,11 +29,12 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{snotez}[2013/03/26 v0.1a sidenote support for LaTeX 2e (CN)]
+\ProvidesPackage{snotez}[2013/04/03 v0.2 sidenote support for LaTeX 2e (CN)]
 
 \RequirePackage{etoolbox,pgfopts,marginnote,perpage}
 
 % --------------------------------------------------------------------------
+% package options:
 \newbool{snotez@marginnote}
 \newbool{snotez@perpage}
 \newbool{snotez@footnote}
@@ -64,6 +65,7 @@
 \newrobustcmd\setsidenotes[1]{\pgfqkeys{/snotez}{#1}}
 
 % --------------------------------------------------------------------------
+% the \sidenote command
 % syntax:
 % - \sidenote{text}
 % - \sidenote[mark]{text}
@@ -85,40 +87,35 @@
   \snotez@mark{#2}%
   \snotez@text{#1}{#3}}
 
-\newcounter{sidenote}
-\AtEndPreamble{
-\ifbool{snotez@perpage}
-  {\MakeSortedPerPage{sidenote}}
-  {\MakeSorted{sidenote}}
-}
-\def\snotez@mark#1{%
-  \ifblank{#1}% or ifstrempty?
-    {\refstepcounter{sidenote}\protected@xdef\@the@snotez@mark{\thesidenote}}
-    {\protected@xdef\@the@snotez@mark{#1}}%
-  \hbox{\snotez@text@mark@format{\@the@snotez@mark}}}
+% this one is very much \@footnotemark from latex.ltx:
+\def\snotez@write@mark#1{%
+  \leavevmode
+  \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+  #1%
+  \ifhmode\spacefactor\@x@sf\fi
+  \relax}
 
+\def\snotez@mark#1{%
+  \ifblank{#1}% or \ifstrempty?
+    {\refstepcounter{sidenote}\protected@xdef\@the@snotez@mark{\thesidenote}}
+    {\protected@edef\@currentlabel{#1}\protected@xdef\@the@snotez@mark{#1}}%
+  \snotez@write@mark{\hbox{\snotez@text@mark@format{\@the@snotez@mark}}}%
+}
+
+\ifcsdef{c@chapter}
+  {\newcounter{sidenote}[chapter]}
+  {\newcounter{sidenote}}
+
+% --------------------------------------------------------------------------
+% the \sidenotemark command
 \newrobustcmd*\sidenotemark[1][]{\snotez@mark{#1}}
 
-\AtBeginDocument{
-  \ifbool{snotez@marginnote}
-    {\let\snotez@marginpar\marginnote}
-    {\let\snotez@marginpar\marginpar}
-  \let\snotez@marginnote\marginnote
-}
-
-% #1: offset
-% #2: text
-\def\snotez@text#1#2{%
-  \ifblank{#1}
-    {%
-      \snotez@marginpar{%
-        \snotez@format\snotez@note@mark@format\@the@snotez@mark\snotez@note@mark@sep#2}%
-    }
-    {%
-      \snotez@marginnote{%
-        \snotez@format\snotez@note@mark@format\@the@snotez@mark\snotez@note@mark@sep#2}[#1]%
-    }}
-
+% --------------------------------------------------------------------------
+% the \sidenotetext command
+% syntax:
+% - \sidenotetext{text}
+% - \sidenotetext[mark]{text}
+% - \sidenotetext[offset][mark]{text}
 \newrobustcmd*\sidenotetext{%
   \@ifnextchar[%
     {\snotez@sidenotetext@aux@i}
@@ -136,22 +133,56 @@
   \ifblank{#2}{}{\protected@xdef\@the@snotez@mark{#2}}%
   \snotez@text{#1}{#3}}
 
+% #1: offset
+% #2: text
+\def\snotez@text#1#2{%
+  \ifblank{#1}
+    {%
+      \snotez@marginpar{%
+        \snotez@format
+        \snotez@write@mark{\snotez@note@mark@format{\@the@snotez@mark}}%
+        \snotez@note@mark@sep#2}%
+    }
+    {%
+      \snotez@marginnote{%
+        \snotez@format
+        \snotez@write@mark{\snotez@note@mark@format{\@the@snotez@mark}}%
+        \snotez@note@mark@sep#2}[#1]%
+    }}
+
+\let\snotez@marginpar\marginpar
+\let\snotez@marginnote\marginnote
+
+% --------------------------------------------------------------------------
+% process preamble options:
 \AtBeginDocument{
-% FIXME: do not do this here! this is `fnpct's task
-%   \@ifpackageloaded{fnpct}{\AdaptNoteOpt\sidenote\multsidenote}{}
+  % if option `footnote=true' let \footnote to \sidenote:
   \ifbool{snotez@footnote}
     {
       \let\footnote\sidenote
       \let\footnotemark\sidenotemark
       \let\footnotetext\sidenotetext
     }{}
+  % if option `marginnote=true' use \marginnote for all notes:
+  \ifbool{snotez@marginnote}
+    {\let\snotez@marginpar\marginnote}
+    {}
 }
+\AtEndPreamble{
+  % if option `perpage=true' count notes per page:
+  \ifbool{snotez@perpage}
+    {\MakeSortedPerPage{sidenote}}
+    {\MakeSorted{sidenote}}
+}
+
 \endinput
+
 % --------------------------------------------------------------------------
 % HISTORY:
 2012/11/15 v0.1  - first version
-2013/03/26 v0.1a - documentation, removed erroneous `fnpct' adaption, other
+2013/04/03 v0.2  - documentation, removed erroneous `fnpct' adaption, other
                    minor changes
+                 - added update of \@currentlabel when a custom mark is used
 
 % --------------------------------------------------------------------------
 % TODO

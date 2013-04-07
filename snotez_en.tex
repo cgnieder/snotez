@@ -88,70 +88,77 @@
 \usepackage[backend=biber,style=alphabetic]{biblatex}
 \addbibresource{\jobname.bib}
 \begin{filecontents}{\jobname.bib}
-@misc{pkg:chngcntr,
+@package{pkg:chngcntr,
   title   = {\paket*{chngcntr}},
   author  = {Peter Wilson and Will Robertson},
   date    = {2009-09-02},
   version = {1.0a},
   url     = {http://mirror.ctan.org/macros/latex/contrib/chngcntr}
 }
-@misc{pkg:etoolbox,
+@package{pkg:etoolbox,
   title   = {\paket*{etoolbox}},
   author  = {Philipp Lehman},
   date    = {2011-01-21},
   version = {2.1},
   url     = {http://mirror.ctan.org/macros/latex/contrib/etoolbox}
 }
-@misc{pkg:marginnote,
+@package{pkg:fnpct,
+  title   = {\paket*{fnpct}},
+  author  = {Clemens Niederberger},
+  date    = {2013-04-07},
+  version = {0.2k},
+  url     = {http://mirror.ctan.org/macros/latex/contrib/fnpct}
+}
+@package{pkg:marginnote,
   title   = {\paket*{marginnote}},
   author  = {Karkus Kohm},
   date    = {2012-03-29},
   version = {1.1i},
   url     = {http://mirror.ctan.org/macros/latex/contrib/marginnote}
 }
-@misc{cls:memoir,
+@package{cls:memoir,
   title   = {\klasse{memoir}},
   author  = {Lars Madsen and Peter Wilson},
   date    = {2011-03-06},
   version = {3.6j patch 6.0g},
   url     = {http://mirror.ctan.org/macros/latex/contrib/memoir}
 }
-@misc{pkg:perpage,
+@package{pkg:perpage,
   title   = {\paket*{perpage}},
   author  = {David Kastrup},
   date    = {2006-07-15},
   version = {1.12},
   url     = {http://mirror.ctan.org/macros/latex/contrib/perpage}
 }
-@misc{pkg:pgfopts,
+@package{pkg:pgfopts,
   title   = {\paket*{pgfopts}},
   author  = {Joseph Wright},
   date    = {2011-06-02},
   version = {2.1},
   url     = {http://mirror.ctan.org/macros/latex/contrib/pgfopts}
 }
-@misc{pkg:ragged2e,
+@package{pkg:ragged2e,
   title   = {\paket*{ragged2e}},
   author  = {Martin Schröder},
   date    = {2009-05-21},
   version = {2.1},
   url     = {http://mirror.ctan.org/macros/latex/contrib/ragged2e}
 }
-@misc{pkg:sidenotes,
+@package{pkg:sidenotes,
   title   = {\paket*{sidenotes}},
   author  = {Andy Thomas and Oliver Schebaum},
   date    = {2012-11-09},
   version = {0.92},
   url     = {http://mirror.ctan.org/macros/latex/contrib/sidenotes}
 }
-@misc{pkg:superiors,
+@package{pkg:superiors,
   title   = {\paket*{superiors}},
   author  = {Michael Sharpe},
   date    = {2012-08-13},
   version = {1.02},
   url     = {http://mirror.ctan.org/macros/latex/contrib/superiors}
 }
-@misc{cls:tufte,
+@package{cls:tufte,
   title   = {\klasse{tufte-latex}},
   author  = {Kevin Godby and Bil Kleb and Bill Wood},
   date    = {2009-12-11},
@@ -198,12 +205,19 @@ status ``maintained.''
 \section{Motivation}
 This has just been an exercise on a lazy
 afternoon\sidenote[-2\baselineskip][]{\url{http://www.youtube.com/watch?v=PPRiaYH1iTk}}.
-Since there already is Andy Thomas' \paket*{sidenotes}
+Well, more or less at least. Since there already is Andy Thomas' \paket*{sidenotes}
 package\sidenote[-\baselineskip][]{\textcite{pkg:sidenotes}} there is probably
 no real need for \snotez. Moreover, the tufte classes\sidenote{\textcite{cls:tufte}}
 as well as \klasse{memoir}\sidenote{\textcite{cls:memoir}} also provide corresponding
-mechansims. Anyways, here it is and it seems to be working as intended so I
+mechansims. Besides the fun I had my motivation was also based on the fact that
+I didn't like some smaller things (\emph{not} bugs) done by the \paket{sidenotes}
+package such as inserting kerns and superscripted commas for multiple marks. I
+prefer to let my \paket*{fnpct}\sidenote{\textcite{pkg:fnpct}} package handle
+these things. Anyways, here it is and it seems to be working as intended so I
 don't see a reason why it shouldn't be available for use.
+
+By the way: the \paket*{fnpct} package v0.2k and later knows about \snotez and
+automatically adapts the note commands.
 
 \section{Introduction}\secidx{Introduction}
 The \snotez Package introduces a \cmd{sidenote} command%
@@ -290,12 +304,12 @@ Available options are these:
    The format of the sidenote mark in the sidenote. Please refer to the actual
    mark with \code{\#1}.
  \Option{text-mark-format}{<code>}\Default{\cmd*{@textsuperscript}\{\cmd*{normalfont}\#1\}}
-   The format of the sidenote mark in the text\sidenote[-2\baselineskip][]{This
+   The format of the sidenote mark in the text\sidenote[-\baselineskip][]{This
    document uses Michael Sharpe's \paket*{superiors} package~\cite{pkg:superiors}
    and redefines the mark formats to use its \cmd*{textsu} command.}. Please refer
    to the actual mark with \code{\#1}.
  \Option{footnote}{\default{true}|false}\Default{false}
-   Let\sidenote{In the sense of \cmd*{let}} \cmd{footnote} to be \cmd{sidenote},
+   Let\sidenote[\baselineskip][]{In the sense of \cmd*{let}} \cmd{footnote} to be \cmd{sidenote},
    \cmd{footnotemark} to be \cmd{sidenotemark} and \cmd{footnotetext} to be
    \cmd{sidenotetext}. \emph{This option can only be used in the preamble}.
 \end{beschreibung}

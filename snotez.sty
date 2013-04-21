@@ -28,16 +28,41 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{snotez}[2013/04/03 v0.2 sidenote support for LaTeX 2e (CN)]
+\def\snotez@date{2013/04/21}
+\def\snotez@version{v0.3}
+\def\snotez@description{sidenote support for LaTeX 2e (CN)}
 
-\RequirePackage{etoolbox,pgfopts,marginnote,perpage}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{snotez}[\snotez@date\space \snotez@version\space \snotez@description]
+
+\RequirePackage{etoolbox,pgfopts,marginnote}
+\@ifpackageloaded{zref-abspage}
+  {\RequirePackage{perpage}}
+  {\AtEndPreamble{\RequirePackage{perpage}}}
+
+% --------------------------------------------------------------------------
+% message handling
+\def\snotez@create@message#1{%
+  \ifstrequal{#1}{Error}
+    {%
+      \lowercase{\csdef{snotez@#1}}##1##2{%
+        \csuse{Package#1}{snotez}{##1}{##2}}%
+    }{%
+      \lowercase{\csdef{snotez@#1}}##1{%
+        \csuse{Package#1}{snotez}{##1}}%
+    }}
+\snotez@create@message{Error}
+\snotez@create@message{Warning}
+\snotez@create@message{WarningNoLine}
+\snotez@create@message{Info}
 
 % --------------------------------------------------------------------------
 % package options:
 \newbool{snotez@marginnote}
 \newbool{snotez@perpage}
 \newbool{snotez@footnote}
+\newbool{snotez@dblarg}
+\booltrue{snotez@dblarg}
 
 \def\snotez@note@mark@sep{\space}
 \def\snotez@note@mark@format#1{\@textsuperscript{\normalfont#1}}
@@ -57,7 +82,8 @@
     note-mark-format/.code  = \def\snotez@note@mark@format##1{#1} ,
     text-mark-format/.code  = \def\snotez@text@mark@format##1{#1} ,
     % make all footnotes sidenotes:
-    footnote/.is if         = snotez@footnote
+    footnote/.is if         = snotez@footnote ,
+    dblarg/.is if           = snotez@dblarg
 }
 
 \ProcessPgfOptions*
@@ -66,26 +92,52 @@
 
 % --------------------------------------------------------------------------
 % the \sidenote command
-% syntax:
-% - \sidenote{text}
-% - \sidenote[mark]{text}
-% - \sidenote[offset][mark]{text}
-\newrobustcmd*\sidenote{%
-  \@ifnextchar[%
-    {\snotez@sidenote@aux@i}
-    {\snotez@sidenote@aux@ii{}[]}}% no option
+\ifbool{snotez@dblarg}{
+  % syntax:
+  % - \sidenote{text}
+  % - \sidenote[mark]{text}
+  % - \sidenote[offset][mark]{text}
+  \newrobustcmd*\sidenote{%
+    \@ifnextchar[%
+      {\snotez@sidenote@aux@i}
+      {\snotez@sidenote@aux@ii{}[]}% no option
+  }
 
-\def\snotez@sidenote@aux@i[#1]{%
-  \@ifnextchar[%
-    {\snotez@sidenote@aux@ii{#1}}% two options
-    {\snotez@sidenote@aux@ii{}[#1]}}% one option
+  \def\snotez@sidenote@aux@i[#1]{%
+    \@ifnextchar[%
+      {\snotez@sidenote@aux@ii{#1}}% two options
+      {\snotez@sidenote@aux@ii{}[{#1}]}% one option
+  }
+}{
+  % syntax:
+  % - \sidenote{text}
+  % - \sidenote[mark]{text}
+  % - \sidenote(offset){text}
+  % - \sidenote(offset)[mark]{text}
+  \newrobustcmd*\sidenote{%
+    \@ifnextchar(%
+      {\snotez@sidenote@aux@i}% offset
+      {%
+        \@ifnextchar[
+          {\snotez@sidenote@aux@ii{}}% no offset nut mark
+          {\snotez@sidenote@aux@ii{}[]}% no offset and no mark
+      }%
+  }
+
+  \def\snotez@sidenote@aux@i(#1){%
+    \@ifnextchar[%
+      {\snotez@sidenote@aux@ii{#1}}% mark
+      {\snotez@sidenote@aux@ii{#1}[]}% no mark
+  }
+}
 
 % #1: offset
 % #2: mark
 % #3: text
 \long\def\snotez@sidenote@aux@ii#1[#2]#3{%
   \snotez@mark{#2}%
-  \snotez@text{#1}{#3}}
+  \snotez@text{#1}{#3}%
+}
 
 % this one is very much \@footnotemark from latex.ltx:
 \def\snotez@write@mark#1{%
@@ -93,7 +145,8 @@
   \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
   #1%
   \ifhmode\spacefactor\@x@sf\fi
-  \relax}
+  \relax
+}
 
 \def\snotez@mark#1{%
   \ifblank{#1}% or \ifstrempty?
@@ -104,7 +157,8 @@
 
 \ifcsdef{c@chapter}
   {\newcounter{sidenote}[chapter]}
-  {\newcounter{sidenote}}
+  {\newcounter{sidenote}%
+}
 
 % --------------------------------------------------------------------------
 % the \sidenotemark command
@@ -112,26 +166,52 @@
 
 % --------------------------------------------------------------------------
 % the \sidenotetext command
-% syntax:
-% - \sidenotetext{text}
-% - \sidenotetext[mark]{text}
-% - \sidenotetext[offset][mark]{text}
-\newrobustcmd*\sidenotetext{%
-  \@ifnextchar[%
-    {\snotez@sidenotetext@aux@i}
-    {\snotez@sidenotetext@aux@ii{}[]}}% no option
+\ifbool{snotez@dblarg}{
+  % syntax:
+  % - \sidenotetext{text}
+  % - \sidenotetext[mark]{text}
+  % - \sidenotetext[offset][mark]{text}
+  \newrobustcmd*\sidenotetext{%
+    \@ifnextchar[%
+      {\snotez@sidenotetext@aux@i}
+      {\snotez@sidenotetext@aux@ii{}[]}% no option
+  }
 
-\def\snotez@sidenotetext@aux@i[#1]{%
-  \@ifnextchar[%
-    {\snotez@sidenotetext@aux@ii{#1}}% two options
-    {\snotez@sidenotetext@aux@ii{}[#1]}}% one option
+  \def\snotez@sidenotetext@aux@i[#1]{%
+    \@ifnextchar[%
+      {\snotez@sidenotetext@aux@ii{#1}}% two options
+      {\snotez@sidenotetext@aux@ii{}[{#1}]}% one option
+  }
+}{
+  % syntax:
+  % - \sidenotetext{text}
+  % - \sidenotetext[mark]{text}
+  % - \sidenotetext(offset){text}
+  % - \sidenotetext(offset)[mark]{text}
+  \newrobustcmd*\sidenotetext{%
+    \@ifnextchar(%
+      {\snotez@sidenotetext@aux@i}% offset
+      {%
+        \@ifnextchar[
+          {\snotez@sidenotetext@aux@ii{}}% no offset nut mark
+          {\snotez@sidenotetext@aux@ii{}[]}% no offset and no mark
+      }%
+  }
+
+  \def\snotez@sidenotetext@aux@i(#1){%
+    \@ifnextchar[%
+      {\snotez@sidenotetext@aux@ii{#1}}% mark
+      {\snotez@sidenotetext@aux@ii{#1}[]}% no mark
+  }
+}
 
 % #1: offset
 % #2: mark
 % #3: text
 \long\def\snotez@sidenotetext@aux@ii#1[#2]#3{%
   \ifblank{#2}{}{\protected@xdef\@the@snotez@mark{#2}}%
-  \snotez@text{#1}{#3}}
+  \snotez@text{#1}{#3}%
+}
 
 % #1: offset
 % #2: text
@@ -147,8 +227,18 @@
       \snotez@marginnote{%
         \snotez@format
         \snotez@write@mark{\snotez@note@mark@format{\@the@snotez@mark}}%
-        \snotez@note@mark@sep#2}[#1]%
-    }}
+        \snotez@note@mark@sep#2%
+      }[\snotez@if@nblskip{#1}{\@cdr#1\@nil\baselineskip}{#1}]%
+    }%
+}
+
+\def\snotez@if@nblskip#1{%
+  \expandafter\ifx\@car#1\@nil*%
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
 
 \let\snotez@marginpar\marginpar
 \let\snotez@marginnote\marginnote
@@ -165,14 +255,32 @@
     }{}
   % if option `marginnote=true' use \marginnote for all notes:
   \ifbool{snotez@marginnote}
-    {\let\snotez@marginpar\marginnote}
+    {%
+      \let\snotez@marginpar\marginnote
+      \snotez@info{All sidenotes are now using \string\marginnote^^J
+      instead of \string\marginpar}%
+    }%
     {}
 }
-\AtEndPreamble{
+
+\AtEndPreamble{%
   % if option `perpage=true' count notes per page:
   \ifbool{snotez@perpage}
     {\MakeSortedPerPage{sidenote}}
-    {\MakeSorted{sidenote}}
+    {\MakeSorted{sidenote}}%
+  \@ifpackageloaded{fnpct}
+    {%
+      \ifbool{snotez@dblarg}
+        {}
+        {%
+          \snotez@error
+            {When you're using the `fnpct' package together with^^J
+            `snotez' you need to enable the `dblarg' option!}
+            {When you're using the `fnpct' package together with^^J
+            `snotez' you need to enable the `dblarg' option!}%
+        }%
+    }
+    {}%
 }
 
 \endinput
@@ -183,6 +291,9 @@
 2013/04/03 v0.2  - documentation, removed erroneous `fnpct' adaption, other
                    minor changes
                  - added update of \@currentlabel when a custom mark is used
-
-% --------------------------------------------------------------------------
-% TODO
+2013/04/21 v0.3  - try to avoid conflict with package loading order of
+                   `perpage' and `zref-abspage'
+                 - allow `*' syntax for offsets that are multiples of
+                   \baselineskip
+                 - syntax change in optional arguments; option `dblarg'
+                   provides previous syntax

@@ -40,7 +40,7 @@
 \documentclass[toc=index,toc=bib,mpinclude]{cnpkgdoc}
 \setlength{\marginparwidth}{2\marginparwidth}
 \docsetup{
-  pkg={[footnote,perpage]snotez},
+  pkg={[footnote,perpage,dblarg]snotez},
   subtitle=sidenote support for \LaTeXe
 }
 \addcmds{
@@ -61,6 +61,8 @@
 \usepackage[biblatex]{embrac}[2013/03/22]
 \ChangeEmph{[}[,.02em]{]}[.055em,-.08em]
 \ChangeEmph{(}[-.01em,.04em]{)}[.04em,-.05em]
+
+\robustify\snotez
 
 \usepackage{libertinehologopatch}
 \usepackage{ragged2e}
@@ -176,6 +178,19 @@
 }
 
 \makeatletter
+\providecommand*\sinceversion[1]{%
+  \@bsphack
+  \marginnote{%
+    \footnotesize\sffamily\RaggedRight
+    \textcolor{black!75}{Introduced in version~#1}}%
+  \@esphack}
+\providecommand*\changedversion[1]{%
+  \@bsphack
+  \marginnote{%
+    \footnotesize\sffamily\RaggedRight
+    \textcolor{black!75}{Changed in version~#1}}%
+  \@esphack}
+
 \newcommand*\defaultsidenotes{%
   \setsidenotes{
     note-mark-format = \@textsuperscript{\normalfont##1},
@@ -196,20 +211,20 @@ version 1.3 or later (\url{http://www.latex-project.org/lppl.txt}). It has the
 status ``maintained.''
 
 \snotez needs and loads the packages
-\paket*{etoolbox}\sidenote[-2\baselineskip][]{\textcite{pkg:etoolbox}},
-\paket*{pgfopts}\sidenote[-\baselineskip][]{\textcite{pkg:pgfopts}},
+\paket*{etoolbox}\sidenote[*-2][]{\textcite{pkg:etoolbox}},
+\paket*{pgfopts}\sidenote[*-][]{\textcite{pkg:pgfopts}},
 \paket*{marginnote}\sidenote{\textcite{pkg:marginnote}} and
 \paket*{perpage}\sidenote{\textcite{pkg:perpage}}.
 \secidx*{License}
 
 \section{Motivation}
 This has just been an exercise on a lazy
-afternoon\sidenote[-2\baselineskip][]{\url{http://www.youtube.com/watch?v=PPRiaYH1iTk}}.
+afternoon\sidenote[*-2][]{\url{http://www.youtube.com/watch?v=PPRiaYH1iTk}}.
 Well, more or less at least. Since there already is Andy Thomas' \paket*{sidenotes}
-package\sidenote[-\baselineskip][]{\textcite{pkg:sidenotes}} there is probably
+package\sidenote[*-][]{\textcite{pkg:sidenotes}} there is probably
 no real need for \snotez. Moreover, the tufte classes\sidenote{\textcite{cls:tufte}}
 as well as \klasse{memoir}\sidenote{\textcite{cls:memoir}} also provide corresponding
-mechansims. Besides the fun I had my motivation was also based on the fact that
+mechanisms. Besides the fun I had my motivation was also based on the fact that
 I didn't like some smaller things (\emph{not} bugs) done by the \paket{sidenotes}
 package such as inserting kerns and superscripted commas for multiple marks. I
 prefer to let my \paket*{fnpct}\sidenote{\textcite{pkg:fnpct}} package handle
@@ -217,7 +232,9 @@ these things. Anyways, here it is and it seems to be working as intended so I
 don't see a reason why it shouldn't be available for use.
 
 By the way: the \paket*{fnpct} package v0.2k and later knows about \snotez and
-automatically adapts the note commands.
+automatically adapts the note commands. Please note that you need to enable
+the \key{dblarg} option (see page~\pageref{key:dblarg}) when you're using
+\paket*{fnpct} together with \snotez!
 
 \section{Introduction}\secidx{Introduction}
 The \snotez Package introduces a \cmd{sidenote} command%
@@ -226,16 +243,16 @@ The \snotez Package introduces a \cmd{sidenote} command%
 \endgroup
 that typesets sidenotes the
 same way \cmd{footnote} typesets footnotes. It provides some options that allow
-formatting the appearance of the sidenotes\sidenote[\baselineskip][]{In all
-sidenotes in this document the mark is typeset on the baseline and the text is
-set ragged right.}. As a default sidenotes are typeset in a \cmd{marginpar} but
-there are possibilities using Markus Kohm's \paket{marginnote} package as well.
+formatting the appearance of the sidenotes\sidenote[*][]{In all sidenotes in this
+document the mark is typeset on the baseline and the text is set ragged right.}.
+As a default sidenotes are typeset in a \cmd{marginpar} but there are possibilities
+using Markus Kohm's \paket{marginnote}~\cite{pkg:marginnote} package as well.
 
 As with footnotes it is possible to set mark and text separately using the
 equivalent commands \cmd{sidenotemark} and \cmd{sidenotetext}, respectively.
-Instead of code examples this documentation will use the \cmd{sidenote} macro
-itself extensively. It is assumend you know how to use \cmd{footnote} and are
-able to transfer your knowledge.
+Instead of lots of code examples this documentation will use the \cmd{sidenote}
+macro itself extensively. It is assumend you know how to use \cmd{footnote} and
+are able to transfer your knowledge.
 \secidx*{Introduction}
 
 \section{Usage}\secidx{Usage}
@@ -243,17 +260,23 @@ The basic usage is the very same as with \LaTeX's \cmd{footnote}, \cmd{footnotem
 and \cmd{footnotetext}. Unsurprisingly the presented commands are these:
 \begin{beschreibung}
  \Befehl{sidenote}\oa{<mark>}\ma{<text>}\newline
-   The basic command. The sytnax is the very same as for \cmd{footnote}.
+   The basic command. The syntax is the very same as for \cmd{footnote}.
  \Befehl{sidenote}\oa{<offset>}\oa{<mark>}\ma{<text>}\newline
    Actually I lied: \cmd{sidenote} has a second option that smuggles itself
    before the \oa{<mark>} option if you use it: an argument for a vertical offset
    that takes a length. An empty second option assumes you want the automatic
    mark. If you use this argument the note is set with the \cmd{marginnote}
-   command\sidenote[-\baselineskip][]{From the \paket{marginnote} package}.
-   Please see its documentation\sidenote{For example with \texttt{texdoc
-   marginnote} on your command line.}~\cite{pkg:marginnote} for the \oa{<offset>}
-   argument. \snotez only passes the value on. Only this much: a positive value
-   shifts the note \emph{down}.
+   command\sidenote[*-3][]{From the \paket{marginnote} package}.
+   Please see its documentation\sidenote[*-2][]{For example with \texttt{texdoc
+   marginnote} on your command line.}~\cite{pkg:marginnote} for the \da{<offset>}
+   argument. \snotez only passes the value on.\par
+   \sinceversion{0.3} Actually, this is only part of the truth: while typing this
+   documentation I repeatedly found myself shifting notes by multiples of
+   \cmd{baselineskip} so the argument accepts a shortcut for this. A star \code{*}
+   followed by a (positive or negative) number denotes a multiple of \cmd{baselineskip}.
+   By the way: a positive value shifts the note \emph{down}.\par
+   When you're using the \key{dblarg}{false} option this second optional argument
+   has parentheses instead of square brackets!
  \Befehl{sidenotemark}\oa{<text>}\newline
    This command has the same purpose as \cmd{footnotemark} but for sidenotes.
  \Befehl{sidenotetext}\oa{<mark>}\ma{<text>}\newline
@@ -265,9 +288,42 @@ and \cmd{footnotetext}. Unsurprisingly the presented commands are these:
    \oa{<offset>} that again smuggles itself before the \oa{<mark>} option if you
    use it. For details see the second description of the \cmd{sidenote} command.
 \end{beschreibung}
-I am not really sure the order of optional arguments makes much sense. If you
-have a better idea please let me know\sidenote[-\baselineskip][]{The fastest way:
-email me at\\\href{mailto:contact@mychemistry.eu}{contact@mychemistry.eu}.}.
+
+Here is one short example of the usage.
+
+\begin{beispiel}[code only]
+ % produces a sidenote with automatic number in a
+ % \marginpar:
+ \sidenote{A note}
+
+ % produces a sidenote with mark `a' in a
+ % \marginpar:
+ \sidenote[a]{A note}
+
+ % produces a sidenote with automatic number in a
+ % \marginnote:
+ \sidenote[][]{A note}
+ % alternative syntax (dblarg=false):
+ \sidenote(){A note}
+
+ % produces a sidenote with automatic number in a
+ % \marginnote shifted down by \baselineskip:
+ \sidenote[*][]{A note}
+ % alternative syntax (dblarg=false):
+ \sidenote(*){A note}
+
+ % produces a sidenote with automatic number in a
+ % \marginnote shifted up by 2ex:
+ \sidenote[-2ex][]{A note}
+ % alternative syntax (dblarg=false):
+ \sidenote(-2ex){A note}
+
+ % produces a sidenote with mark `a' in a
+ % \marginnote shifted down by 2\baselineskip:
+ \sidenote[*2][a]{A note}
+ % alternative syntax (dblarg=false):
+ \sidenote(*2)[a]{A note}
+\end{beispiel}
 \secidx*{Usage}
 
 \section{Options}\secidx{Options}
@@ -278,6 +334,17 @@ Although all options can be used as package option you can also set all options
 \end{beschreibung}
 Available options are these:
 \begin{beschreibung}
+ \Option{dblarg}{\default{true}|false}\Default{true}
+   \sinceversion{0.3}\emph{This option can only be used as a package option!}
+   Prior to version~0.3 \snotez' \cmd{sidenote} and \cmd{sidenotetext} had both
+   their optional arguments with square brackets where the use of one argument
+   referred to the mark but when both were used the first argument referred to
+   the offset and the second to the mark. This syntax is kept with this option.
+   Setting it to \code{false} changes the \oa{<offset>} argument syntax into
+   \da{<offset>}.\par
+   \emph{If you're using \snotez together with the \paket*{fnpct} package~\cite{pkg:fnpct}
+   you cannot set \key{dblarg} to \code{false}. Otherwise the \da{<offset>}
+   argument get's lost!}
  \Option{marginnote}{\default{true}|false}\Default{false}
    Use \paket{marginnote}'s \cmd{marginnote}~\cite{pkg:marginnote} for all
    \cmd{sidenote}s. In the default setting \cmd{sidenote} uses \cmd{marginpar}s
@@ -292,24 +359,26 @@ Available options are these:
    to the sidenote's format.}.
  \Option{perpage}{\default{true}|false}\Default{false}
    Make sidenotes counter per page. \emph{This option can only be set in the
-   preamble}. It uses package \paket{perpage}'s \cmd*{MakeSortedPerPage} macro
-   for the task. This documentation is an example for the use of the option.
-   In the default setting sidenotes are counted per chapter. If you want sidenotes
-   counted document-wise together with a class that defines a counter \code{chapter}
-   then use for example the package \paket*{chngcntr}~\cite{pkg:chngcntr} and issue
+   preamble}. It uses package \paket{perpage}'s~\cite{pkg:perpage}
+   \cmd{MakeSortedPerPage} macro for the task. Otherwise the macro
+   \cmd{MakeSorted} is used. In the default setting sidenotes are counted per
+   chapter. If you want sidenotes counted document-wise together with a class
+   that defines a counter \code{chapter} then use for example the package
+   \paket*{chngcntr}~\cite{pkg:chngcntr} and issue
    \cmd*{counterwithout}{sidenote}\ma{chapter} after loading \snotez.
+   This documentation is an example for the use of the option.
  \Option{note-mark-sep}{<code>}\Default{\cmd*{space}}
    The separator between sidenote mark and sidenote text in the sidenote.
  \Option{note-mark-format}{<code>}\Default{\cmd*{@textsuperscript}\{\cmd*{normalfont}\#1\}}
    The format of the sidenote mark in the sidenote. Please refer to the actual
    mark with \code{\#1}.
  \Option{text-mark-format}{<code>}\Default{\cmd*{@textsuperscript}\{\cmd*{normalfont}\#1\}}
-   The format of the sidenote mark in the text\sidenote[-\baselineskip][]{This
-   document uses Michael Sharpe's \paket*{superiors} package~\cite{pkg:superiors}
-   and redefines the mark formats to use its \cmd*{textsu} command.}. Please refer
-   to the actual mark with \code{\#1}.
+   The format of the sidenote mark in the text\sidenote[*-][]{This document uses
+   Michael Sharpe's \paket*{superiors} package~\cite{pkg:superiors} and redefines
+   the mark formats to use its \cmd*{textsu} command.}. Please refer to the actual
+   mark with \code{\#1}.
  \Option{footnote}{\default{true}|false}\Default{false}
-   Let\sidenote[\baselineskip][]{In the sense of \cmd*{let}} \cmd{footnote} to be \cmd{sidenote},
+   Let\sidenote[*][]{In the sense of \cmd*{let}} \cmd{footnote} to be \cmd{sidenote},
    \cmd{footnotemark} to be \cmd{sidenotemark} and \cmd{footnotetext} to be
    \cmd{sidenotetext}. \emph{This option can only be used in the preamble}.
 \end{beschreibung}
@@ -319,7 +388,8 @@ As a short example this is how the sidenotes for this document are formatted:
 \setsidenotes{
   note-mark-format=#1.,
   text-mark-format=\textsu{\hspace*{\superiors@spaced}#1},
-  text-format+=\RaggedRight
+  text-format+=\RaggedRight,
+  perpage=true
 }
 \end{beispiel}
 \secidx*{Options}
@@ -331,9 +401,12 @@ As a short example this is how the sidenotes for this document are formatted:
 In the following code the lines 1--30 have been omitted. They only repeat the
 license statement which has already been mentioned in section~\ref{sec:license}.
 
-\implementation[linerange={31-179},firstnumber=31]
+\implementation[linerange={31-1000},firstnumber=31]
 
-\normalsize
+\indexprologue{\noindent Section titles are indicated \textbf{bold}, packages
+\textsf{sans serif}, commands \code{\textbackslash\textcolor{code}{brown}}
+ and options \textcolor{key}{\code{yellow}}.\par\bigskip}
+ 
 \printindex
 
 \end{document}

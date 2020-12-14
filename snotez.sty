@@ -8,46 +8,31 @@
 % Web:    https://bitbucket.org/cgnieder/enotez/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2012--2013 Clemens Niederberger
+% Copyright 2012--2020 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
-% conditions of the LaTeX Project Public License, either version 1.3
+% conditions of the LaTeX Project Public License, either version 1.3c
 % of this license or (at your option) any later version.
 % The latest version of this license is in
 %   http://www.latex-project.org/lppl.txt
-% and version 1.3 or later is part of all distributions of LaTeX
-% version 2005/12/01 or later.
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008/05/04 or later.
 % 
 % This work has the LPPL maintenance status `maintained'.
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-% The snotez package consists of the files
-%  - snotez.sty, snotez_en.tex, snotez_en.pdf, README
-% --------------------------------------------------------------------------
-% If you have any ideas, questions, suggestions or bugs to report, please
-% feel free to contact me.
-% --------------------------------------------------------------------------
-\def\snotez@date{2013/11/21}
-\def\snotez@version{v0.4}
+\def\snotez@date{2020/12/14}
+\def\snotez@version{v0.5a}
 \def\snotez@description{sidenote support for LaTeX 2e (CN)}
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{snotez}[\snotez@date\space \snotez@version\space \snotez@description]
 
-\RequirePackage{cnltx-base,marginnote}
+\RequirePackage{etoolbox,pgfopts,marginnote}
 \@ifpackageloaded{zref-abspage}
   {\RequirePackage{perpage}}
   {\AtEndPreamble{\RequirePackage{perpage}}}
-
-% --------------------------------------------------------------------------
-% message handling
-\def\snotez@error@message{%
-  For details have a look at the `snotez' manual.}
-\cnltx@create@generic@message{snotez}{snotez}{Error}{\snotez@error@message}
-\cnltx@create@generic@message{snotez}{snotez}{Warning}{}
-\cnltx@create@generic@message{snotez}{snotez}{WarningNoLine}{}
-\cnltx@create@generic@message{snotez}{snotez}{Info}{}
 
 % --------------------------------------------------------------------------
 % package options:
@@ -55,7 +40,6 @@
 \newbool{snotez@perpage}
 \newbool{snotez@footnote}
 \newbool{snotez@dblarg}
-\booltrue{snotez@dblarg}
 
 \newcommand*\snotez@note@mark@sep{\space}
 \newcommand*\snotez@note@mark@format[1]{\@textsuperscript{\normalfont#1}}
@@ -66,6 +50,7 @@
   snotez/.cd,
     % all sidenotes use \marginnote:
     marginnote/.is if       = snotez@marginnote ,
+    % formatting of the note text:
     text-format/.code       = \renewcommand*\snotez@format{#1} ,
     text-format+/.code      =
       \expandafter\renewcommand
@@ -74,12 +59,21 @@
       \expandafter{\snotez@format#1} ,
     % make sidenotes counted per page:
     perpage/.is if          = snotez@perpage ,
+    % formatting of the note mark:
     note-mark-sep/.code     = \renewcommand*\snotez@note@mark@sep{#1} ,
     note-mark-format/.code  = \renewcommand*\snotez@note@mark@format[1]{#1} ,
     text-mark-format/.code  = \renewcommand*\snotez@text@mark@format[1]{#1} ,
     % make all footnotes sidenotes:
     footnote/.is if         = snotez@footnote ,
-    dblarg/.is if           = snotez@dblarg
+    % change optional argument input:
+    dblarg/.is if           = snotez@dblarg ,
+    % formmatting of the sidefloats' contents:
+    sidefloat-format/.code  = \renewcommand*\snotez@sidefloat@format{#1} ,
+    sidefloat-format+/.code =
+      \expandafter\renewcommand
+      \expandafter*%
+      \expandafter\snotez@sidefloat@format
+      \expandafter{\snotez@sidefloat@format#1}
 }
 
 \ProcessPgfOptions*
@@ -246,20 +240,52 @@
         \snotez@format
         \snotez@write@mark{\snotez@note@mark@format{\@the@snotez@mark}}%
         \snotez@note@mark@sep#2%
-      }[\snotez@if@nblskip{#1}{\@cdr#1\@nil\baselineskip}{#1}]%
+      }[\snotez@if@nblskip{#1}]%
     }%
 }
 
 \newcommand*\snotez@if@nblskip[1]{%
+  % if #1 starts with * gobble it and add \baselineskip:
   \expandafter\ifx\@car#1\@nil*%
     \expandafter\@firstoftwo
   \else
     \expandafter\@secondoftwo
   \fi
+  {\@cdr#1\@nil\baselineskip}%
+  {#1}%
 }
 
 \let\snotez@marginpar\marginpar
 \let\snotez@marginnote\marginnote
+
+% --------------------------------------------------------------------------
+% margin floats with captions, based on an idea in tufte-latex
+\newsavebox\snotez@sidefloat@box
+\newcommand*\snotez@sidefloat@format{\raggedright}
+
+\newenvironment{snotez@sidefloat}[2]
+  {%
+    \def\@captype{#1}%
+    \begin{lrbox}{\snotez@sidefloat@box}%
+      \minipage{\marginparwidth}%
+      \snotez@sidefloat@format#2%
+  }
+  {
+      \endminipage
+    \end{lrbox}%
+    \marginpar{\unhbox\snotez@sidefloat@box}%
+  }
+
+\newrobustcmd*\snotez@new@sidefloat[2]{%
+  \newenvironment{side#1}
+    {\snotez@sidefloat{#1}{#2}}
+    {\endsnotez@sidefloat}%
+}
+
+\newrobustcmd*\newsnotezfloat[2][]{\snotez@new@sidefloat{#2}{#1}}
+
+\newsnotezfloat{figure}
+\newsnotezfloat{table}
 
 % --------------------------------------------------------------------------
 % process preamble options:
@@ -270,13 +296,17 @@
       \let\footnote\sidenote
       \let\footnotemark\sidenotemark
       \let\footnotetext\sidenotetext
+      \ifdef\multfootnote{%
+        \let\multfootnote\multsidenote
+      }{}%
     }{}
   % if option `marginnote=true' use \marginnote for all notes:
   \ifbool{snotez@marginnote}
     {%
       \let\snotez@marginpar\marginnote
-      \snotez@info{All sidenotes are now using \string\marginnote^^J
-      instead of \string\marginpar}%
+      \PackageInfo{snotez}
+        {All sidenotes are now using \string\marginnote^^J
+         instead of \string\marginpar}%
     }%
     {}
 }
@@ -286,19 +316,6 @@
   \ifbool{snotez@perpage}
     {\MakeSortedPerPage{sidenote}}
     {\MakeSorted{sidenote}}%
-  \@ifpackageloaded{fnpct}
-    {%
-      \ifbool{snotez@dblarg}
-        {}
-        {%
-          \snotez@error
-            {When you're using the `fnpct' package together with^^J
-            `snotez' you need to enable the `dblarg' option!}
-            {When you're using the `fnpct' package together with^^J
-            `snotez' you need to enable the `dblarg' option!}%
-        }%
-    }
-    {}%
 }
 
 \endinput
@@ -319,4 +336,5 @@
                    \sidenotetext commands and the internal commands
 2013/11/21 v0.4  - robustify commands where appropriate
                  - use cnltx-base
-
+2020/01/12 v0.5  - remove dependency on `cnltx-base'
+2020/12/14 v0.5a - fix issue #1

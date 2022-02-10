@@ -5,10 +5,10 @@
 % 
 % --------------------------------------------------------------------------
 % Clemens Niederberger
-% Web:    https://bitbucket.org/cgnieder/snotez/
-% E-Mail: contact@mychemistry.eu
+% Web:    https://github.com/cgnieder/snotez/
+% E-Mail: clemens@cnltx.de
 % --------------------------------------------------------------------------
-% Copyright 2012--2020 Clemens Niederberger
+% Copyright 2012--2022 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3c
@@ -30,8 +30,8 @@
 \setcnltx{
   package  = snotez ,
   authors  = Clemens Niederberger ,
-  email    = contact@mychemistry.eu ,
-  url      = https://bitbucket.org/cgnieder/snotez ,
+  email    = clemens@cnltx.de ,
+  url      = https://github.com/cgnieder/snotez ,
   info     = sidenote support for \LaTeXe ,
   add-cmds = {
     newsnotezfloat ,
@@ -115,12 +115,6 @@
 
 \section{License and Requirements}\label{sec:license}
 \license
-
-\snotez\ needs and loads the packages
-\pkg{etoolbox}\sidenote(*-2){\textcite{pkg:etoolbox}},
-\pkg{pgfopts}\sidenote(*-1){\textcite{pkg:pgfopts}},
-\pkg{marginnote}\sidenote{\textcite{pkg:marginnote}} and
-\pkg{perpage}\sidenote{\textcite{pkg:perpage}}.
 
 \section{Motivation}\label{sec:motivation}
 This has just been an exercise on a lazy
@@ -293,14 +287,13 @@ Available options are these:
       sidenote's format.}.
   \keybool{perpage}\Default{false}
     \emph{This option can only be set in the preamble}.  Make sidenotes
-    counter per page.  It uses package \pkg{perpage}'s~\cite{pkg:perpage}
-    \cs*{MakeSortedPerPage} macro for the task.  Otherwise the macro
-    \cs*{MakeSorted} is used.  In the default setting sidenotes are counted 
-    per chapter.  If you want sidenotes counted document-wise together with a
-    class that defines a counter \code{chapter} then use for example the
-    package \pkg{chngcntr}~\cite{pkg:chngcntr} and issue
-    \cs*{counterwithout}\Marg{sidenote}\Marg{chapter} after loading \snotez.
-    This documentation is an example for the use of the option.
+    counter per page.  It uses package \pkg{zref-perpage}'s~\cite{bnd:zref}
+    for the task. This documentation is an example for the use of the option.
+  \keybool{perchapter}\Default{false}
+    \emph{This option can only be set in the preamble}.\sinceversion{0.6} If
+    your document class has defined a counter \code{chapter} and if you set
+    this to \code{true} the \code{sidenote} counter will be added to the reset
+    list of the \code{chapter} counter.
   \keyval{note-mark-sep}{code}\Default{\cs*{space}}
     The separator between sidenote mark and sidenote text in the sidenote.
   \keyval{note-mark-format}{code}\Default{\cs*{@textsuperscript}\Marg{\cs*{normalfont}\#1}}
@@ -337,12 +330,12 @@ As a short example this is how the sidenotes for this document are formatted:
 
 
 \section{Implementation}
-In the following code the lines 1--30 have been omitted. They only repeat the
+In the following code the lines 1--24 have been omitted. They only repeat the
 license statement which has already been mentioned in section~\ref{sec:license}.
 
 \implementation[
-  linerange={31-1000},
-  firstnumber=31,
+  linerange={25-344},
+  firstnumber=25,
   basicstyle=\ttfamily\footnotesize
 ]{snotez.sty}
 

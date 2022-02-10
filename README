@@ -1,14 +1,14 @@
 --------------------------------------------------------------------------
-the SNOTEZ package v0.5a 2020/12/14
+the SNOTEZ package v0.6 2022/02/10
 
   Sidenotes for LaTeX2e
 
 --------------------------------------------------------------------------
 Clemens Niederberger
-Web:    https://bitbucket.org/cgnieder/snotez/
-E-Mail: contact@mychemistry.eu
+Web:    https://github.com/cgnieder/snotez/
+E-Mail: clemens@cnltx.de
 --------------------------------------------------------------------------
-Copyright 2012--2020 Clemens Niederberger
+Copyright 2012--2022 Clemens Niederberger
 
 This work may be distributed and/or modified under the
 conditions of the LaTeX Project Public License, either version 1.3c

@@ -5,10 +5,10 @@
 % 
 % --------------------------------------------------------------------------
 % Clemens Niederberger
-% Web:    https://bitbucket.org/cgnieder/enotez/
-% E-Mail: contact@mychemistry.eu
+% Web:    https://github.com/cgnieder/snotez/
+% E-Mail: clemens@cnltx.de
 % --------------------------------------------------------------------------
-% Copyright 2012--2020 Clemens Niederberger
+% Copyright 2012--2022 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3c
@@ -22,8 +22,8 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\def\snotez@date{2020/12/14}
-\def\snotez@version{v0.5a}
+\def\snotez@date{2022/02/10}
+\def\snotez@version{v0.6}
 \def\snotez@description{sidenote support for LaTeX 2e (CN)}
 
 \NeedsTeXFormat{LaTeX2e}
@@ -37,6 +37,7 @@
 \newbool{snotez@perpage}
 \newbool{snotez@footnote}
 \newbool{snotez@dblarg}
+\newbool{snotez@perchapter}
 
 \newcommand*\snotez@note@mark@sep{\space}
 \newcommand*\snotez@note@mark@format[1]{\@textsuperscript{\normalfont#1}}
@@ -56,6 +57,8 @@
       \expandafter{\snotez@format#1} ,
     % make sidenotes counted per page:
     perpage/.is if          = snotez@perpage ,
+    % count sidenotes per chapter:
+    perchapter/.is if       = snotez@perchapter ,
     % formatting of the note mark:
     note-mark-sep/.code     = \renewcommand*\snotez@note@mark@sep{#1} ,
     note-mark-format/.code  = \renewcommand*\snotez@note@mark@format[1]{#1} ,
@@ -79,14 +82,10 @@
 
 % --------------------------------------------------------------------------
 % the \sidenote command
-\ifbool{snotez@dblarg}{
-  \newrobustcmd*\sidenote{%
-    \snotez@sidenote@dblarg
-  }
-}{
-  \newrobustcmd*\sidenote{%
-    \snotez@sidenote@nodblarg
-  }
+\AtBeginDocument{%
+  \ifbool{snotez@dblarg}
+    {\newrobustcmd*\sidenote{\snotez@sidenote@dblarg}}
+    {\newrobustcmd*\sidenote{\snotez@sidenote@nodblarg}}%
 }
 
 % syntax:
@@ -157,9 +156,12 @@
     \hbox{\snotez@text@mark@format{\@the@snotez@mark}}}%
 }
 
-\ifltxcounter{chapter}
-  {\newcounter{sidenote}[chapter]}
-  {\newcounter{sidenote}}
+\newcounter{sidenote}
+\AtBeginDocument{%
+  \ifltxcounter{chapter}{%
+    \ifbool{snotez@perchapter}{\counterwithin*{sidenote}{chapter}}{}%
+    }{}
+}
 
 % --------------------------------------------------------------------------
 % the \sidenotemark command
@@ -167,16 +169,12 @@
 
 % --------------------------------------------------------------------------
 % the \sidenotetext command
-\ifbool{snotez@dblarg}{
-  \newrobustcmd*\sidenotetext{%
-    \snotez@sidenotetext@dblarg
-  }
-}{
-  \newrobustcmd*\sidenotetext{%
-    \snotez@sidenotetext@nodblarg
-  }
+\AtBeginDocument{
+  \ifbool{snotez@dblarg}
+    {\newrobustcmd*\sidenotetext{\snotez@sidenotetext@dblarg}}
+    {\newrobustcmd*\sidenotetext{\snotez@sidenotetext@nodblarg}}
 }
-
+  
 % syntax:
 % - \sidenotetext{text}
 % - \sidenotetext[mark]{text}
@@ -260,18 +258,16 @@
 \newsavebox\snotez@sidefloat@box
 \newcommand*\snotez@sidefloat@format{\raggedright}
 
-\newenvironment{snotez@sidefloat}[2]
-  {%
-    \def\@captype{#1}%
-    \begin{lrbox}{\snotez@sidefloat@box}%
-      \minipage{\marginparwidth}%
-      \snotez@sidefloat@format#2%
-  }
-  {
-      \endminipage
-    \end{lrbox}%
-    \marginpar{\unhbox\snotez@sidefloat@box}%
-  }
+\newenvironment{snotez@sidefloat}[2]{%
+  \def\@captype{#1}%
+  \begin{lrbox}{\snotez@sidefloat@box}%
+    \minipage{\marginparwidth}%
+    \snotez@sidefloat@format#2%
+}{%
+    \endminipage
+  \end{lrbox}%
+  \marginpar{\unhbox\snotez@sidefloat@box}%
+}
 
 \newrobustcmd*\snotez@new@sidefloat[2]{%
   \newenvironment{side#1}
@@ -312,6 +308,7 @@
   \ifbool{snotez@perpage}{%
     \RequirePackage{zref-perpage}%
     \zmakeperpage{sidenote}%
+    \@ifpackageloaded{hyperref}{\def\theHsidenote{\theHsection.\thesidenote}}{}
   }{}%
 }
 
@@ -336,3 +333,5 @@
                  - use cnltx-base
 2020/01/12 v0.5  - remove dependency on `cnltx-base'
 2020/12/14 v0.5a - fix issue #1
+2022/02/10 v0.6  - fix issue #2
+                 - add option `perchapter'

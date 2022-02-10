@@ -30,9 +30,6 @@
 \ProvidesPackage{snotez}[\snotez@date\space \snotez@version\space \snotez@description]
 
 \RequirePackage{etoolbox,pgfopts,marginnote}
-\@ifpackageloaded{zref-abspage}
-  {\RequirePackage{perpage}}
-  {\AtEndPreamble{\RequirePackage{perpage}}}
 
 % --------------------------------------------------------------------------
 % package options:
@@ -311,12 +308,13 @@
     {}
 }
 
-\AtEndPreamble{%
-  % if option `perpage=true' count notes per page:
-  \ifbool{snotez@perpage}
-    {\MakeSortedPerPage{sidenote}}
-    {\MakeSorted{sidenote}}%
+\AddToHook{begindocument/before}{%
+  \ifbool{snotez@perpage}{%
+    \RequirePackage{zref-perpage}%
+    \zmakeperpage{sidenote}%
+  }{}%
 }
+
 
 \endinput
 

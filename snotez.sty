@@ -22,8 +22,8 @@
 % 
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-\def\snotez@date{2022/02/10}
-\def\snotez@version{v0.6}
+\def\snotez@date{2022/02/12}
+\def\snotez@version{v0.7}
 \def\snotez@description{sidenote support for LaTeX 2e (CN)}
 
 \NeedsTeXFormat{LaTeX2e}
@@ -259,7 +259,9 @@
 \newcommand*\snotez@sidefloat@format{\raggedright}
 
 \newenvironment{snotez@sidefloat}[2]{%
-  \def\@captype{#1}%
+  \ifdef\caption@settype
+    {\caption@settype{#1}}
+    {\def\@captype{#1}}%
   \begin{lrbox}{\snotez@sidefloat@box}%
     \minipage{\marginparwidth}%
     \snotez@sidefloat@format#2%
@@ -335,3 +337,4 @@
 2020/12/14 v0.5a - fix issue #1
 2022/02/10 v0.6  - fix issue #2
                  - add option `perchapter'
+2022/02/12 v0.7  - make `snotez' and `caption' compatible
